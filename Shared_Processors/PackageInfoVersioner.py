@@ -49,12 +49,17 @@ class PackageInfoVersioner(Processor):
             dom = minidom.parse(self.env["package_info_path"])
         except IOError as err:
             raise ProcessorError(err)
-        pkgrefs = dom.getElementsByTagName("pkg-info")
-        self.env["pkg_id"] = pkgrefs[0].attributes["identifier"].value
-        self.output("Found pkg_id %s" % self.env["pkg_id"]) 
-        self.env["version"] = pkgrefs[0].attributes["version"].value
-        self.output("Found version %s" % self.env["version"])
+        pkgrefs = dom.getElementsByTagName("pkg-ref")
 
+        for item in pkgrefs :
+            if (item.hasAttribute("id") and item.hasAttribute("version")):
+                self.env["pkg_id"] = item.attributes["id"].value
+                self.output("Found pkg_id %s" % self.env["pkg_id"]) 
+                self.env["version"] = item.attributes["version"].value
+                self.output("Found version %s" % self.env["version"])
+                break
+            else:
+                self.output("version not found. GLWS.")
 
 if __name__ == "__main__":
     PROCESSOR = PackageInfoVersioner()
